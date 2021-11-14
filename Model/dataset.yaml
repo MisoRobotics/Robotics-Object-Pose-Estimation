@@ -1,0 +1,16 @@
+--- #
+
+dataset:
+  image_scale: 224
+  root: /mnt/c/Users/rsinnet/Documents/repos/pose-estimation/data/UR3_single_cube_training
+  annotation_id: 0bfbe00d-00fa-4555-88d1-471b58449f5c
+  schema_version: 0.0.1
+
+  download_data_gcp: false
+  gcs_bucket: canary-ml-data
+  pose_estimation_gcs_path: tutorials/unity
+  symmetric: false
+
+system:
+  log_dir_system: /save/single_cube
+  data_root: /data
