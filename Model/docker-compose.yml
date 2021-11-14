@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  pose-estimation:
+    build: .
+    volumes:
+      - ${HOME}/.config/gcloud:/root/.config/gcloud:ro
+      - /mnt/c/Users/rsinnet/Documents/repos/pose-estimation/data:/data:ro
+      - /mnt/c/Users/rsinnet/Documents/repos/pose-estimation/save:/save/single_cube:rw
+    environment:
+      GCP_PROJECT: canary-kubeflow
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      PYTHONOPTIMIZE: "ON"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: python -m pose_estimation.cli train
