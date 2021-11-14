@@ -17,10 +17,10 @@ test:
   sample_size_test: 0
 dataset:
   image_scale: 224
-  download_data_gcp: False
-  gcs_bucket: None
-  pose_estimation_gcs_path: None
-  symmetric: False
+  download_data_gcp: false
+  gcs_bucket: canary-ml-data
+  pose_estimation_gcs_path: tutorials/unity
+  symmetric: false
 adam_optimizer:
   lr: 0.0001
   beta_1: 0.9

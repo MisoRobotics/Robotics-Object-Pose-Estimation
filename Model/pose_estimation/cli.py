@@ -3,7 +3,7 @@ Usage:
     cli.py train [options] [config] [dataset] [training-options] [hyperparameter-options] [save-options] [loading-options]
     cli.py evaluate [options] [config] [dataset] [evaluation-options] [save-options] [loading-options]
 
-config: 
+config:
     --config-file=<str>                         Path to the file containing the yaml file for the model configuration. [default: config.yaml]
 
 dataset:
@@ -13,21 +13,21 @@ dataset:
     --gcs-bucket=<string>                       Name of GCS Bucket where the datasets are located.
     --download-data-gcp=<boolean>               If True it will download the data from gcp otherwise it will use the data you have on local.
     --pose-estimation-gcs-path=<string>         Path inside the gcp bucket where the datasets are located.
-    --symmetric=list<bool>                      List of booleans. The length of the list is equal to the number of objects which we want to predict the position. 
-                                                The order is the one in the capture_*.json with the label_id under captures > annotations > values. 
-                                                If the object is symmetric then the element is True otherwise it is False. Based on that we will only predict the 
-                                                orientation or translation and orientation. 
+    --symmetric=list<bool>                      List of booleans. The length of the list is equal to the number of objects which we want to predict the position.
+                                                The order is the one in the capture_*.json with the label_id under captures > annotations > values.
+                                                If the object is symmetric then the element is True otherwise it is False. Based on that we will only predict the
+                                                orientation or translation and orientation.
 
 training-options:
     --batch-training-size=<int>                 Batch size of the training dataset.
     --batch-validation-size=<int>               Batch size of the validation dataset.
     --epochs=<int>                              Number of epoch we want to train the model.
-    --accumulation-steps=<int>                  Accumulated Gradients are only updated after X steps. This creates an effective batch size of 
+    --accumulation-steps=<int>                  Accumulated Gradients are only updated after X steps. This creates an effective batch size of
                                                 batch_size * accumulation_steps.
     --checkpoint-freq=<n>                       Save a model checkpoint every n training iterations.
     --dataset-zip-file-name-training=<str>      Name of the zip file for the training dataset.
     --dataset-zip-file-name-validation=<str>    Name of the zip file for the training dataset.
-    --eval_freq=<int>                           Frequency to launch the evaluation process 
+    --eval_freq=<int>                           Frequency to launch the evaluation process
 
 
 evaluation-options:
@@ -59,6 +59,10 @@ import yaml
 
 from .pose_estimation_estimator import PoseEstimationEstimator
 
+import sys
+
+sys.setrecursionlimit(2000)
+
 
 # PARSE CLI
 def _get_config(args):
@@ -69,7 +73,9 @@ def _get_config(args):
         parameters and the parameters entered in the command line
     """
     # get default config
-    config = yaml.load(open(args["--config-file"], "r"), Loader=yaml.FullLoader)
+    config = yaml.load(
+        open(args["--config-file"], "r"), Loader=yaml.FullLoader
+    )
 
     # overwrite with cli args if provided
     config = _overwrite_config(config, args)

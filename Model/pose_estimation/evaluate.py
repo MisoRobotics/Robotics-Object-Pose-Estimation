@@ -1,13 +1,13 @@
 import torch
 import torchvision
 
-from pose_estimation.single_cube_dataset import SingleCubeDataset
-from pose_estimation.evaluation_metrics.translation_average_mean_square_error import (
-    translation_average_mean_square_error,
-)
 from pose_estimation.evaluation_metrics.orientation_average_quaternion_error import (
     orientation_average_quaternion_error,
 )
+from pose_estimation.evaluation_metrics.translation_average_mean_square_error import (
+    translation_average_mean_square_error,
+)
+from pose_estimation.single_cube_dataset import SingleCubeDataset
 
 
 def evaluate_model(estimator):

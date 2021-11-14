@@ -1,22 +1,13 @@
 import copy
-import os
 import logging
-from pose_estimation.logger import Logger
-from .storage.checkpoint import EstimatorCheckpoint
-
-from pose_estimation.model import PoseEstimationNetwork
-from pose_estimation.train import train_model
-from pose_estimation.evaluate import evaluate_model
-from pose_estimation.single_cube_dataset import SingleCubeDataset
-from pose_estimation.evaluation_metrics.translation_average_mean_square_error import (
-    translation_average_mean_square_error,
-)
-from pose_estimation.evaluation_metrics.orientation_average_quaternion_error import (
-    orientation_average_quaternion_error,
-)
 
 import torch
-import torchvision
+
+from .evaluate import evaluate_model
+from .logger import Logger
+from .model import PoseEstimationNetwork
+from .storage.checkpoint import EstimatorCheckpoint
+from .train import train_model
 
 
 class PoseEstimationEstimator:
@@ -48,9 +39,12 @@ class PoseEstimationEstimator:
         print("writer log:", config.system.log_dir_system)
 
         self.checkpointer = EstimatorCheckpoint(
-            estimator_name=self.config.estimator, log_dir=config.system.log_dir_system,
+            estimator_name=self.config.estimator,
+            log_dir=config.system.log_dir_system,
         )
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda:0" if torch.cuda.is_available() else "cpu"
+        )
 
         # logging config
         logging.basicConfig(
@@ -64,7 +58,9 @@ class PoseEstimationEstimator:
         self.logger = logging.getLogger(__name__)
 
         # We will create as many networks as there are objects to predict the position
-        self.model = PoseEstimationNetwork(is_symetric=config.dataset.symmetric)
+        self.model = PoseEstimationNetwork(
+            is_symetric=config.dataset.symmetric
+        )
 
         # load estimators from file if checkpoint_file exists
         checkpoint_file = config.checkpoint.load_dir_checkpoint

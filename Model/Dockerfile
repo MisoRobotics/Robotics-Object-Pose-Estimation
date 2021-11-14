@@ -1,25 +1,11 @@
-FROM nvidia/cuda:11.4.2-runtime-ubuntu20.04
+FROM  nvcr.io/nvidia/pytorch:21.10-py3
 
-# Add Miniconda
-# https://github.com/ContinuumIO/docker-images/blob/master/miniconda3/debian/Dockerfile
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-ENV PATH /opt/conda/bin:$PATH
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update --fix-missing && \
     apt-get install -y wget bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 git mercurial subversion && \
     apt-get clean
-
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean -tipsy && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc && \
-    find /opt/conda/ -follow -type f -name '*.a' -delete && \
-    find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
-    /opt/conda/bin/conda clean -afy
 
 # Add Tini init systems to handle orphaned processes
 # https://cloud.google.com/solutions/best-practices-for-building-containers#problem_2_how_classic_init_systems_handle_orphaned_processes

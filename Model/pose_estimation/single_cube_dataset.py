@@ -63,9 +63,12 @@ class SingleCubeDataset(torch.utils.data.IterableDataset):
         self.root = os.path.join(data_root, self.zip_file_name)
 
         if self.config.dataset.download_data_gcp:
-            self.pose_estimation_gcs_path = self.config.dataset.pose_estimation_gcs_path
+            self.pose_estimation_gcs_path = (
+                self.config.dataset.pose_estimation_gcs_path
+            )
             self.gcs_bucket = self.config.dataset.gcs_bucket
             self._download()
+            self.root = self._get_dataset_root()
 
         self.size = self.__len__()
         self.sample_size = min(sample_size, self.size)
@@ -167,27 +170,33 @@ class SingleCubeDataset(torch.utils.data.IterableDataset):
         """
         return os.path.join(self.root, f"{self.zip_file_name}.zip")
 
-    def _download(self):
-        """
-        Method to download dataset from GCS
-        """
+    def _get_dataset_root(self):
+        for root, dirs, _ in os.walk(self.root):
+            if any(item.startswith("RGB") for item in dirs):
+                return root
+
+    def _download(self, *, update_root=False):
+        """Download zipped dataset from GCS and extract."""
         path = Path(self.root)
         path.mkdir(parents=True, exist_ok=True)
-        client = GCSClient(project=self.config.dataset.gcp_project)
+        client = GCSClient()
         object_key = os.path.join(
             self.pose_estimation_gcs_path, f"{self.zip_file_name}.zip"
         )
 
         data_zip_local = self._get_local_data_zip()
+        logger.info(f"Looking for dataset archive `{data_zip_local}'...")
         if not os.path.exists(data_zip_local):
-            logger.info(f"no data zip file found, will download.")
+            logger.info(
+                f"Data archive `{data_zip_local}' not found, will download."
+            )
             client.download(
                 bucket_name=self.gcs_bucket,
                 object_key=object_key,
                 localfile=data_zip_local,
             )
-            with zipfile.ZipFile(data_zip_local, "r") as zip_dir:
-                zip_dir.extractall(f"{self.root}")
+        with zipfile.ZipFile(data_zip_local, "r") as zip_dir:
+            zip_dir.extractall(f"{self.root}")
 
     def get_transform(self):
         """
@@ -199,7 +208,10 @@ class SingleCubeDataset(torch.utils.data.IterableDataset):
         transform = torchvision.transforms.Compose(
             [
                 torchvision.transforms.Resize(
-                    (self.config.dataset.image_scale, self.config.dataset.image_scale,)
+                    (
+                        self.config.dataset.image_scale,
+                        self.config.dataset.image_scale,
+                    )
                 ),
                 torchvision.transforms.ToTensor(),
             ]
@@ -240,11 +252,12 @@ class RawDataIterator:
         Mandatory method in order to create an Iterator object.
 
         Returns:
-            a tuple corresponding to the data as a dictionnary and the
+            a tuple corresponding to the data as a dictionary and the
             path towards the corresponding images
         """
         path = self._log_path()
         if os.path.exists(path):
+            logger.info(f"Loading file `{path}'...")
             file = open(path)
             data = json.load(file)
             if self.image_index >= len(data["captures"]):
@@ -271,7 +284,7 @@ class RawDataIterator:
         Attribute:
             data (json object): https://www.geeksforgeeks.org/json-load-in-python/
                 it is the data file
-            
+
             Example:
                 "filename": "RGB33aa3f79-f2dc-47a3-b631-fb80dcacdb29/rgb_2.png",
                 "format": "PNG",
@@ -325,9 +338,15 @@ class RawDataIterator:
             path (str): path towards the Logs file
         """
         if self.log_index < 10:
-            path = "{}/captures_00{}.json".format(self.log_folder_path, self.log_index)
+            path = "{}/captures_00{}.json".format(
+                self.log_folder_path, self.log_index
+            )
         elif self.log_index < 100:
-            path = "{}/captures_0{}.json".format(self.log_folder_path, self.log_index)
+            path = "{}/captures_0{}.json".format(
+                self.log_folder_path, self.log_index
+            )
         else:
-            path = "{}/captures_{}.json".format(self.log_folder_path, self.log_index)
+            path = "{}/captures_{}.json".format(
+                self.log_folder_path, self.log_index
+            )
         return path
