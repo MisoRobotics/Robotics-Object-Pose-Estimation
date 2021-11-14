@@ -1,0 +1,13 @@
+#!include:.gitignore
+
+documentation/
+kubeflow/
+tests/
+
+__pycache__/
+
+.gcloudignore
+*.ipynb
+docker-compose.yml
+*.pyc
+*.pyo

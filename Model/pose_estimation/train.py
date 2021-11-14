@@ -1,17 +1,12 @@
 import copy
-import os
 
 import torch
-import torchvision
 
-from pose_estimation.single_cube_dataset import SingleCubeDataset
-from pose_estimation.evaluation_metrics.translation_average_mean_square_error import (
-    translation_average_mean_square_error,
+from .evaluate import (
+    evaluate_one_epoch,
+    evaluation_over_batch,
 )
-from pose_estimation.evaluation_metrics.orientation_average_quaternion_error import (
-    orientation_average_quaternion_error,
-)
-from pose_estimation.evaluate import evaluate_one_epoch, evaluation_over_batch
+from .unity_perception_dataset import UnityPerceptionDataset
 
 
 def train_model(estimator):
@@ -22,20 +17,8 @@ def train_model(estimator):
         estimator: pose estimation estimator
     """
     config = estimator.config
-    dataset_train = SingleCubeDataset(
-        config=config,
-        data_root=estimator.data_root,
-        split="train",
-        zip_file_name=config.train.dataset_zip_file_name_training,
-        sample_size=config.train.sample_size_train,
-    )
-    dataset_val = SingleCubeDataset(
-        config=config,
-        data_root=estimator.data_root,
-        split="validation",
-        zip_file_name=config.val.dataset_zip_file_name_validation,
-        sample_size=config.val.sample_size_val,
-    )
+    dataset_train = UnityPerceptionDataset.from_default_config("train")
+    dataset_val = UnityPerceptionDataset.from_default_config("validation")
 
     train_loader = torch.utils.data.DataLoader(
         dataset_train,
@@ -104,7 +87,12 @@ def train_loop(*, estimator, config, train_dataloader, val_dataloader):
 
 
 def _train_one_epoch(
-    *, estimator, config, optimizer, data_loader, epoch,
+    *,
+    estimator,
+    config,
+    optimizer,
+    data_loader,
+    epoch,
 ):
     """
     Train the model on one epoch

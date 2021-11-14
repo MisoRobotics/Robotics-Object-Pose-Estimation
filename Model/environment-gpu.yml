@@ -7,19 +7,20 @@ dependencies:
   - click
   - cudatoolkit
   - cudnn
-  - flake8
-  - isort
   - jupyter
   - pip
   - pytest
   - pytest-cov
-  - pytorch
-  - torchvision
   - docopt
-  - black
-  - pyyaml
 
   - pip:
       - kfp
+      - black
+      - datasetinsights
       - easydict
+      - flake8
+      - flake8-black
+      - isort
+      - PyYAML
       - tensorboardX
+      - torchvision

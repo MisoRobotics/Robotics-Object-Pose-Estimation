@@ -1,0 +1,12 @@
+--- # Build
+timeout: 1800s
+options:
+  machineType: N1_HIGHCPU_32
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/canary-kubeflow/mlcr/unity-pose-estimation
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: [build, --tag=$_IMAGE, --cache-from=$_IMAGE, .]
+
+images: [$_IMAGE]
