@@ -173,7 +173,7 @@ class SingleCubeDataset(torch.utils.data.IterableDataset):
         """
         path = Path(self.root)
         path.mkdir(parents=True, exist_ok=True)
-        client = GCSClient()
+        client = GCSClient(project=self.config.dataset.gcp_project)
         object_key = os.path.join(
             self.pose_estimation_gcs_path, f"{self.zip_file_name}.zip"
         )
